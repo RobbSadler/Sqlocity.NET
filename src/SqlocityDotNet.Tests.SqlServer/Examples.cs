@@ -105,11 +105,11 @@ BEGIN
 
 END";
         //[TestFixtureSetUp]
-        public void TestFixtureSetUp()
+        public async void TestFixtureSetUp()
         {
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( CreateSchemaSql )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
         }
 
         #endregion TestFixtureSetUp
@@ -117,7 +117,7 @@ END";
 #region Execute Methods
 
 [Test]
-public void ExecuteNonQuery_With_No_Parameters_Example()
+public async void ExecuteNonQuery_With_No_Parameters_Example()
 {
     // Arrange
     const string sql = @"
@@ -132,16 +132,16 @@ INSERT INTO #SuperHero ( SuperHeroName )
 VALUES ( 'Superman' );";
 
     // Act
-    int rowsAffected = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    int rowsAffected = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteNonQuery();
+        .ExecuteNonQueryAsync();
 
     // Assert
     Assert.That( rowsAffected == 1 );
 }
 
 [Test]
-public void ExecuteNonQuery_With_Parameters_Example()
+public async void ExecuteNonQuery_With_Parameters_Example()
 {
     // Arrange
     const string sql = @"
@@ -158,18 +158,18 @@ INSERT INTO #SuperHero ( SuperHeroName )
 VALUES ( @SuperHeroName2 );";
 
     // Act
-    int rowsAffected = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    int rowsAffected = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
         .AddParameter( "@SuperHeroName1", "Superman", DbType.AnsiString )
         .AddParameter( "@SuperHeroName2", "Batman", DbType.AnsiString )
-        .ExecuteNonQuery();
+        .ExecuteNonQueryAsync();
 
     // Assert
     Assert.That( rowsAffected == 2 );
 }
 
 [Test]
-public void ExecuteReader_Example()
+public async void ExecuteReader_Example()
 {
     // Arrange
     const string sql = @"
@@ -192,9 +192,9 @@ FROM    #SuperHero;";
     List<object> list = new List<object>();
 
     // Act
-    Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteReader( record =>
+        .ExecuteReaderAsync( record =>
         {
             var obj = new
             {
@@ -210,7 +210,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteScalar_Example()
+public async void ExecuteScalar_Example()
 {
     // Arrange
     const string sql = @"
@@ -228,17 +228,16 @@ SELECT  SuperHeroId, /* This should be the only value returned from ExecuteScala
 FROM    #SuperHero;";
 
     // Act
-    int superHeroId = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    int superHeroId = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteScalar()
-        .ToInt(); // Using one of the many handy Sequelocity helper extension methods
+        .ExecuteScalarAsync<int>(); // Using one of the many handy Sequelocity helper extension methods
 
     // Assert
     Assert.That( superHeroId == 1 );
 }
 
 [Test]
-public void ExecuteScalar_Of_Type_T_Example()
+public async void ExecuteScalar_Of_Type_T_Example()
 {
     // Arrange
     const string sql = @"
@@ -256,9 +255,9 @@ SELECT  SuperHeroId, /* This should be the only value returned from ExecuteScala
 FROM    #SuperHero;";
 
     // Act
-    int superHeroId = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    int superHeroId = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteScalar<int>();
+        .ExecuteScalarAsync<int>();
 
     // Assert
     Assert.That( superHeroId == 1 );
@@ -333,7 +332,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteToDynamicList_Example()
+public async void ExecuteToDynamicList_Example()
 {
     // Arrange
     const string sql = @"
@@ -354,9 +353,9 @@ SELECT  SuperHeroId,
 FROM    #SuperHero;";
 
     // Act
-    List<dynamic> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<dynamic> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteToDynamicList();
+        .ExecuteToDynamicListAsync();
 
     // Assert
     Assert.That( superHeroes.Count == 2 );
@@ -367,7 +366,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteToDynamicObject_Example()
+public async void ExecuteToDynamicObject_Example()
 {
     // Arrange
     const string sql = @"
@@ -389,9 +388,9 @@ SELECT  TOP 1
 FROM    #SuperHero;";
 
     // Act
-    dynamic superHero = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    dynamic superHero = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteToDynamicObject();
+        .ExecuteToDynamicObjectAsync();
 
     // Assert
     Assert.NotNull( superHero );
@@ -400,7 +399,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteToList_Example()
+public async void ExecuteToList_Example()
 {
     // Arrange
     const string sql = @"
@@ -421,9 +420,9 @@ SELECT  SuperHeroId,
 FROM    #SuperHero;";
 
     // Act
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 
     // Assert
     Assert.That( superHeroes.Count == 2 );
@@ -434,7 +433,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteToMap_Example()
+public async void ExecuteToMap_Example()
 {
     // Arrange
     const string sql = @"
@@ -455,9 +454,9 @@ SELECT  SuperHeroId,
 FROM    #SuperHero;";
 
     // Act
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteToMap( record =>
+        .ExecuteToMapAsync( record =>
         {
             var obj = new SuperHero
             {
@@ -477,7 +476,7 @@ FROM    #SuperHero;";
 }
 
 [Test]
-public void ExecuteToObject_Example()
+public async void ExecuteToObject_Example()
 {
     // Arrange
     const string sql = @"
@@ -499,9 +498,9 @@ SELECT  TOP 1
 FROM    #SuperHero;";
 
     // Act
-    SuperHero superHero = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    SuperHero superHero = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteToObject<SuperHero>();
+        .ExecuteToObjectAsync<SuperHero>();
 
     // Assert
     Assert.NotNull( superHero );
@@ -522,7 +521,7 @@ public class Customer
 }
 
 [Test]
-public void GenerateInsertForSqlServer_Example()
+public async void GenerateInsertForSqlServer_Example()
 {
     // Arrange
     const string sql = @"
@@ -549,23 +548,23 @@ BEGIN
 END
 ";
 
-    Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteNonQuery();
+        .ExecuteNonQueryAsync();
 
     Customer customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
     // Act
-    int customerId = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    int customerId = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .GenerateInsertForSqlServer( customer )
-        .ExecuteScalar<int>();
+        .ExecuteScalarAsync<int>();
 
     // Assert
     Assert.That( customerId == 1 );
 }
 
 [Test]
-public void GenerateInsertForSqlServer_Example_Using_An_Anonymous_Type()
+public async void GenerateInsertForSqlServer_Example_Using_An_Anonymous_Type()
 {
     // Arrange
     const string sql = @"
@@ -579,24 +578,24 @@ CREATE TABLE #Customer
 
     DbConnection dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-    Sqlocity.GetDatabaseCommand( dbConnection )
+    await Sqlocity.GetDatabaseCommand( dbConnection )
         .SetCommandText( sql )
-        .ExecuteNonQuery( true ); // Passing in 'true' to keep the connection open since this example is using a temp table which only exists during the scope / lifetime of this database connection
+        .ExecuteNonQueryAsync( true ); // Passing in 'true' to keep the connection open since this example is using a temp table which only exists during the scope / lifetime of this database connection
 
     // Anonymous Type
     var customer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
     // Act
-    int customerId = Sqlocity.GetDatabaseCommand( dbConnection )
+    int customerId = await Sqlocity.GetDatabaseCommand( dbConnection )
         .GenerateInsertForSqlServer( customer, "#Customer" ) // Specifying table name since Sequelocity can't use the type name as the table name
-        .ExecuteScalar<int>();
+        .ExecuteScalarAsync<int>();
 
     // Assert
     Assert.That( customerId == 1 );
 }
 
 [Test]
-public void GenerateInsertsForSqlServer_Example()
+public async void GenerateInsertsForSqlServer_Example()
 {
     // Arrange
     const string sql = @"
@@ -627,9 +626,9 @@ BEGIN
 END
 ";
     
-    Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
-        .ExecuteNonQuery();
+        .ExecuteNonQueryAsync();
 
     Customer customer1 = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
     Customer customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -637,9 +636,9 @@ END
     List<Customer> list = new List<Customer> { customer1, customer2, customer3 };
 
     // Act
-    List<long> customerIds = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<long> customerIds = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .GenerateInsertsForSqlServer( list )
-        .ExecuteToList<long>();
+        .ExecuteToListAsync<long>();
 
     // Assert
     Assert.That( customerIds.Count == 3 );
@@ -659,23 +658,23 @@ public class SuperHero
 }
 
 
-public void AddParameter_Example()
+public async void AddParameter_Example()
 {
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( "SELECT * FROM SuperHero WHERE SuperHeroName = @SuperHeroName" )
         .AddParameter( "@SuperHeroName", "Superman" )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
-public void AddParameter_Example_Specifying_An_Explicit_DbType()
+public async void AddParameter_Example_Specifying_An_Explicit_DbType()
 {
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( "SELECT * FROM SuperHero WHERE SuperHeroName = @SuperHeroName" )
         .AddParameter( "@SuperHeroName", "Superman", DbType.AnsiString )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
-public void AddParameter_Example_Providing_A_DbParameter()
+public async void AddParameter_Example_Providing_A_DbParameter()
 {
     DatabaseCommand databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString );
 
@@ -684,23 +683,23 @@ public void AddParameter_Example_Providing_A_DbParameter()
     dbParameter.Value = "Superman";
     dbParameter.Direction = ParameterDirection.InputOutput;
 
-    List<SuperHero> superHeroes = databaseCommand
+    List<SuperHero> superHeroes = await databaseCommand
         .SetCommandText( "SELECT * FROM SuperHero WHERE SuperHeroName = @SuperHeroName" )
         .AddParameter( dbParameter )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
-public void AddParameters_Example_Providing_A_List_Of_Parameter_Values_For_Use_In_An_IN_Clause()
+public async void AddParameters_Example_Providing_A_List_Of_Parameter_Values_For_Use_In_An_IN_Clause()
 {
     List<string> parameterList = new List<string> { "Superman", "Batman", "Spider-Man" };
 
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( "SELECT * FROM SuperHero WHERE SuperHeroName IN ( @SuperHeroNames )" )
         .AddParameters( "@SuperHeroNames", parameterList, DbType.AnsiString )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
-public void AddParameters_Example_Providing_A_Dictionary_Of_Parameter_Names_And_Values()
+public async void AddParameters_Example_Providing_A_Dictionary_Of_Parameter_Names_And_Values()
 {
     const string sql = @"
 SELECT  *
@@ -716,13 +715,13 @@ WHERE   SuperHeroId = @SuperHeroId
         { "@SuperHeroPartialName", "S" }
     };
 
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
         .AddParameters( dictionary )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
-public void AddParameters_Example_Supplying_A_Parameter_Array_Of_DbParameters()
+public async void AddParameters_Example_Supplying_A_Parameter_Array_Of_DbParameters()
 {
     const string sql = @"
 SELECT  *
@@ -737,10 +736,10 @@ WHERE   SuperHeroId = @SuperHeroId
     DbParameter superHeroNameParameter = databaseCommand.CreateParameter( "@SuperHeroName", "Superman", DbType.AnsiString );
     DbParameter superHeroPartialNameParameter = databaseCommand.CreateParameter( "@SuperHeroPartialName", "S", DbType.AnsiString );
 
-    List<SuperHero> superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+    List<SuperHero> superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( sql )
         .AddParameters( superHeroIdParameter, superHeroNameParameter, superHeroPartialNameParameter )
-        .ExecuteToList<SuperHero>();
+        .ExecuteToListAsync<SuperHero>();
 }
 
 #endregion Adding Parameter Methods
@@ -773,7 +772,7 @@ public void AppendCommandText_Example()
 #region Transaction Examples
 
 [Test]
-public void BeginTransaction_Example()
+public async void BeginTransaction_Example()
 {
     const string sqlCommand1 = @"
 CREATE TABLE #Customer
@@ -796,13 +795,13 @@ INSERT INTO #Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
     {
         using ( var transaction = databaseCommand.BeginTransaction() )
         {
-            var rowsUpdated = databaseCommand
+            var rowsUpdated = await databaseCommand
                 .SetCommandText( sqlCommand1 )
-                .ExecuteNonQuery( keepConnectionOpen: true );
+                .ExecuteNonQueryAsync( keepConnectionOpen: true );
 
-            var nextRowsUpdated = databaseCommand
+            var nextRowsUpdated = await databaseCommand
                 .SetCommandText( sqlCommand2 )
-                .ExecuteNonQuery( keepConnectionOpen: true );
+                .ExecuteNonQueryAsync( keepConnectionOpen: true );
 
             Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
@@ -813,7 +812,7 @@ INSERT INTO #Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 }
 
 [Test]
-public void TransactionScope_Example()
+public async void TransactionScope_Example()
 {
     const string sqlCommand1 = @"
 IF ( EXISTS (	SELECT	* 
@@ -848,13 +847,13 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 
     using ( var transaction = new TransactionScope() )
     {
-        var rowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+        var rowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sqlCommand1 )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
-        var nextRowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+        var nextRowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
             .SetCommandText( sqlCommand2 )
-            .ExecuteNonQuery();
+            .ExecuteNonQueryAsync();
 
         Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
@@ -868,7 +867,7 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 #region Event Handler Examples
 
 [Test]
-public void PreExecute_Example()
+public async void PreExecute_Example()
 {
     // Arrange
     string commandText = string.Empty;
@@ -883,9 +882,9 @@ public void PreExecute_Example()
     } );
 
     // Act
-    var id = Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
+    var id = await Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( "SELECT 1 as Id" )
-        .ExecuteScalar<int>();
+        .ExecuteScalarAsync<int>();
 
     // Visual Assertion
     Trace.WriteLine( commandText );
@@ -899,7 +898,7 @@ public void PreExecute_Example()
 }
 
 [Test]
-public void PostExecute_Example()
+public async void PostExecute_Example()
 {
     // Arrange
     var dictionary = new ConcurrentDictionary<DatabaseCommand,Stopwatch>();
@@ -918,9 +917,9 @@ public void PostExecute_Example()
     } );
 
     // Act
-    var id = Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
+    var id = await Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
         .SetCommandText( "SELECT 1 as Id" )
-        .ExecuteScalar<int>();
+        .ExecuteScalarAsync<int>();
 
     // Visual Assertion
     Trace.WriteLine( "Elapsed Milliseconds: " + elapsedMilliseconds );
@@ -934,7 +933,7 @@ public void PostExecute_Example()
 }
 
 [Test]
-public void UnhandledException_Example()
+public async void UnhandledException_Example()
 {
     // Arrange
     Exception thrownException = null;
@@ -946,9 +945,9 @@ public void UnhandledException_Example()
             
     try
     {
-        var id = Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
+        var id = await Sqlocity.GetDatabaseCommandForSqlServer( ConnectionStringsNames.SqlServerConnectionString )
             .SetCommandText( "SELECT asdasdffsdf as Id" )
-            .ExecuteScalar<int>();
+            .ExecuteScalarAsync<int>();
     }
     catch ( Exception )
     {

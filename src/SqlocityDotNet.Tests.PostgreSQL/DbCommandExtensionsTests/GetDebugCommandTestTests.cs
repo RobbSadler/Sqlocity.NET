@@ -17,7 +17,7 @@ namespace SqlocityNetCore.Tests.PostgreSQL.DbCommandExtensionsTests
         }
 
         [Test]
-        public void Should_Contain_The_Connection_String()
+        public async void Should_Contain_The_Connection_String()
         {
             // Arrange
             const string sql = @"
@@ -37,9 +37,9 @@ CREATE TEMPORARY TABLE Customer
             var dbConnection = Sqlocity.CreateDbConnection(connectionString, "Npgsql");
             connectionString = dbConnection.ConnectionString;
 
-            new DatabaseCommand(dbConnection)
+            await new DatabaseCommand(dbConnection)
                 .SetCommandText(sql)
-                .ExecuteNonQuery(true);
+                .ExecuteNonQueryAsync(true);
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
             var customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse("05/27/1939") };
@@ -62,7 +62,7 @@ CREATE TEMPORARY TABLE Customer
         }
 
         [Test]
-        public void Should_Contain_Parameter_Replaced_CommandText()
+        public async void Should_Contain_Parameter_Replaced_CommandText()
         {
             // Arrange
             const string sql = @"
@@ -81,9 +81,9 @@ CREATE TEMPORARY TABLE Customer
 
             var dbConnection = Sqlocity.CreateDbConnection(connectionString, "Npgsql");
 
-            new DatabaseCommand(dbConnection)
+            await new DatabaseCommand(dbConnection)
                 .SetCommandText(sql)
-                .ExecuteNonQuery(true);
+                .ExecuteNonQueryAsync(true);
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
             var customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse("05/27/1939") };

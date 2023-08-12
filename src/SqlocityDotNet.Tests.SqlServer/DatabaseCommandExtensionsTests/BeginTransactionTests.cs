@@ -7,7 +7,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 	public class BeginTransactionTests
 	{
 		[Test]
-		public void Should_Return_A_New_DbTransaction()
+		public async void Should_Return_A_New_DbTransaction()
 		{
 			// Arrange
             var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString );
@@ -21,7 +21,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 		}
 
 		[Test]
-		public void Should_Associate_The_DbTransaction_With_The_DatabaseCommand()
+		public async void Should_Associate_The_DbTransaction_With_The_DatabaseCommand()
 		{
 			// Arrange
 			var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString );
@@ -34,7 +34,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 		}
 
 		[Test]
-		public void Can_Rollback_Transaction()
+		public async void Can_Rollback_Transaction()
 		{
 			const string createTableSchema = @"
 IF ( EXISTS (	SELECT	* 
@@ -64,13 +64,13 @@ BEGIN
 END
 ";
 
-		    Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 		        .SetCommandText( createTableSchema )
-		        .ExecuteNonQuery();
+		        .ExecuteNonQueryAsync();
 
-            var rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
 
@@ -87,19 +87,19 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 			{
 				using( var transaction = databaseCommand.BeginTransaction() )
 				{
-					var rowsUpdated = databaseCommand
-						.SetCommandText( sqlCommand1 )
-						.ExecuteNonQuery( keepConnectionOpen: true );
+					var rowsUpdated = await databaseCommand
+                        .SetCommandText( sqlCommand1 )
+						.ExecuteNonQueryAsync( keepConnectionOpen: true );
 
-					var nextRowsUpdated = databaseCommand
-						.SetCommandText( sqlCommand2 )
-						.ExecuteNonQuery( keepConnectionOpen: true );
+					var nextRowsUpdated = await databaseCommand
+                        .SetCommandText( sqlCommand2 )
+						.ExecuteNonQueryAsync( keepConnectionOpen: true );
 
 					Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
-                    rowCount = databaseCommand
+                    rowCount = await databaseCommand
                         .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                        .ExecuteScalar<int>( keepConnectionOpen: true );
+                        .ExecuteScalarAsync<int>( keepConnectionOpen: true );
 
                     Assert.That( rowCount == 3 );
 
@@ -108,15 +108,15 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 				}
 			}
 
-            rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
 		}
 
         [Test]
-        public void Can_Commit_Transactions()
+        public async void Can_Commit_Transactions()
         {
             const string createTableSchema = @"
 IF ( EXISTS (	SELECT	* 
@@ -146,13 +146,13 @@ BEGIN
 END
 ";
 
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( createTableSchema )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
-            var rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
 
@@ -169,19 +169,19 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
             {
                 using( var transaction = databaseCommand.BeginTransaction() )
                 {
-                    var rowsUpdated = databaseCommand
+                    var rowsUpdated = await databaseCommand
                         .SetCommandText( sqlCommand1 )
-                        .ExecuteNonQuery( keepConnectionOpen: true );
+                        .ExecuteNonQueryAsync( keepConnectionOpen: true );
 
-                    var nextRowsUpdated = databaseCommand
+                    var nextRowsUpdated = await databaseCommand
                         .SetCommandText( sqlCommand2 )
-                        .ExecuteNonQuery( keepConnectionOpen: true );
+                        .ExecuteNonQueryAsync( keepConnectionOpen: true );
 
                     Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
-                    rowCount = databaseCommand
+                    rowCount = await databaseCommand
                         .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                        .ExecuteScalar<int>( keepConnectionOpen: true );
+                        .ExecuteScalarAsync<int>( keepConnectionOpen: true );
 
                     Assert.That( rowCount == 3 );
 
@@ -190,15 +190,15 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
                 }
             }
 
-            rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 3 );
         }
 
         [Test]
-        public void Can_Rollback_Transaction_Using_TransactionScope()
+        public async void Can_Rollback_Transaction_Using_TransactionScope()
         {
             const string createTableSchema = @"
 IF ( EXISTS (	SELECT	* 
@@ -228,13 +228,13 @@ BEGIN
 END
 ";
 
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( createTableSchema )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
-            var rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
 
@@ -249,19 +249,19 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 
             using( var transaction = new TransactionScope() )
             {
-                var rowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                var rowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                         .SetCommandText( sqlCommand1 )
-                        .ExecuteNonQuery();
+                        .ExecuteNonQueryAsync();
 
-                var nextRowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                var nextRowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                     .SetCommandText( sqlCommand2 )
-                    .ExecuteNonQuery();
+                    .ExecuteNonQueryAsync();
 
                 Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
-                rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                         .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                        .ExecuteScalar<int>();
+                        .ExecuteScalarAsync<int>();
 
                 Assert.That( rowCount == 3 );
 
@@ -269,15 +269,15 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
                     transaction.Dispose();
             }
 
-            rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
         }
 
         [Test]
-        public void Can_Commit_Transactions_Using_TransactionScope()
+        public async void Can_Commit_Transactions_Using_TransactionScope()
         {
             const string createTableSchema = @"
 IF ( EXISTS (	SELECT	* 
@@ -307,13 +307,13 @@ BEGIN
 END
 ";
 
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( createTableSchema )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
-            var rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 0 );
 
@@ -328,19 +328,19 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
 
             using( var transaction = new TransactionScope() )
             {
-                var rowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                var rowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                         .SetCommandText( sqlCommand1 )
-                        .ExecuteNonQuery();
+                        .ExecuteNonQueryAsync();
 
-                var nextRowsUpdated = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                var nextRowsUpdated = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                     .SetCommandText( sqlCommand2 )
-                    .ExecuteNonQuery();
+                    .ExecuteNonQueryAsync();
 
                 Assert.That( rowsUpdated == 2 && nextRowsUpdated == 1 );
 
-                rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+                rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                         .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                        .ExecuteScalar<int>();
+                        .ExecuteScalarAsync<int>();
 
                 Assert.That( rowCount == 3 );
 
@@ -348,9 +348,9 @@ INSERT INTO Customer VALUES ( 'Peter', 'Parker', '08/18/1962' );
                     transaction.Complete();
             }
 
-            rowCount = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            rowCount = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT COUNT(*) FROM Customer" )
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             Assert.That( rowCount == 3 );
         }
