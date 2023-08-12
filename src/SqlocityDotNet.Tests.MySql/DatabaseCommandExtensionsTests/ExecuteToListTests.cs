@@ -139,7 +139,7 @@ FROM    SuperHero;
 		}
 
 		[Test]
-		public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+		public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
 		{
 			// Arrange
 			bool wasPostExecuteEventHandlerCalled = false;

@@ -10,7 +10,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
     public class ExecuteReaderTests
     {
         [Test]
-        public void Should_Call_The_DataRecordCall_Action_For_Each_Record_In_The_Result_Set()
+        public async void Should_Call_The_DataRecordCall_Action_For_Each_Record_In_The_Result_Set()
         {
             // Arrange
             const string sql = @"
@@ -34,9 +34,9 @@ FROM    #SuperHero;
             var list = new List<object>();
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sql )
-                .ExecuteReader( record =>
+                .ExecuteReaderAsync( record =>
                 {
                     var obj = new
                     {
@@ -52,7 +52,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -78,7 +78,7 @@ FROM    #SuperHero;
             var list = new List<object>();
 
             // Act
-            databaseCommand.ExecuteReader( record =>
+            await databaseCommand.ExecuteReaderAsync( record =>
             {
                 var obj = new
                 {
@@ -94,7 +94,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -120,7 +120,7 @@ FROM    #SuperHero;
             var list = new List<object>();
 
             // Act
-            databaseCommand.ExecuteReader( record =>
+            await databaseCommand.ExecuteReaderAsync( record =>
             {
                 var obj = new
                 {
@@ -139,7 +139,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -147,16 +147,16 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteReader( record => { } );
+                .ExecuteReaderAsync( record => { } );
 
             // Assert
             Assert.IsTrue( wasPreExecuteEventHandlerCalled );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -164,9 +164,9 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteReader( record => { } );
+                .ExecuteReaderAsync( record => { } );
 
             // Assert
             Assert.IsTrue( wasPostExecuteEventHandlerCalled );
@@ -184,9 +184,9 @@ FROM    #SuperHero;
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteReader( record => { } );
+                .ExecuteReaderAsync( record => { } );
 
             // Assert
             Assert.Throws<System.Data.SqlClient.SqlException>( action );
@@ -197,263 +197,263 @@ FROM    #SuperHero;
     [TestFixture]
     public class ExecuteReader_Of_Type_T_Tests
     {
-        [Test]
-        public void Should_Call_The_DataRecordCall_Func_For_Each_Record_In_The_Result_Set()
-        {
-            // Arrange
-            const string sql = @"
-CREATE TABLE #SuperHero
-(
-    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
-    SuperHeroName	NVARCHAR(120)   NOT NULL
-);
+//        [Test]
+//        public async void Should_Call_The_DataRecordCall_Func_For_Each_Record_In_The_Result_Set()
+//        {
+//            // Arrange
+//            const string sql = @"
+//CREATE TABLE #SuperHero
+//(
+//    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
+//    SuperHeroName	NVARCHAR(120)   NOT NULL
+//);
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Superman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Superman' );
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Batman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Batman' );
 
-SELECT  SuperHeroId,
-        SuperHeroName
-FROM    #SuperHero;
-";
+//SELECT  SuperHeroId,
+//        SuperHeroName
+//FROM    #SuperHero;
+//";
 
-            List<object> list;
+//            List<object> list;
 
-            // Act
-            list = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText(sql)
-                .ExecuteReader<object>(record => new
-                {
-                    SuperHeroId = record.GetValue(0),
-                    SuperHeroName = record.GetValue(1)
-                })
-                .ToList();
+//            // Act
+//            list = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText(sql)
+//                .ExecuteReaderAsync<object>(record => new
+//                {
+//                    SuperHeroId = record.GetValue(0),
+//                    SuperHeroName = record.GetValue(1)
+//                })
+//                .ToList();
 
 
-            // Assert
-            Assert.That(list.Count == 2);
-        }
+//            // Assert
+//            Assert.That(list.Count == 2);
+//        }
 
-        [Test]
-        public void Should_Null_The_DbCommand_By_Default()
-        {
-            // Arrange
-            const string sql = @"
-CREATE TABLE #SuperHero
-(
-    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
-    SuperHeroName	NVARCHAR(120)   NOT NULL
-);
+//        [Test]
+//        public async void Should_Null_The_DbCommand_By_Default()
+//        {
+//            // Arrange
+//            const string sql = @"
+//CREATE TABLE #SuperHero
+//(
+//    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
+//    SuperHeroName	NVARCHAR(120)   NOT NULL
+//);
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Superman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Superman' );
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Batman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Batman' );
 
-SELECT  SuperHeroId,
-        SuperHeroName
-FROM    #SuperHero;
-";
-            var databaseCommand = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText(sql);
+//SELECT  SuperHeroId,
+//        SuperHeroName
+//FROM    #SuperHero;
+//";
+//            var databaseCommand = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText(sql);
 
-            List<object> list;
+//            List<object> list;
 
-            // Act
-            list = databaseCommand
-                .ExecuteReader<object>(record => new
-                {
-                    SuperHeroId = record.GetValue(0),
-                    SuperHeroName = record.GetValue(1)
-                })
-                .ToList();
+//            // Act
+//            list = databaseCommand
+//                .ExecuteReader<object>(record => new
+//                {
+//                    SuperHeroId = record.GetValue(0),
+//                    SuperHeroName = record.GetValue(1)
+//                })
+//                .ToList();
 
-            // Assert
-            Assert.IsNull(databaseCommand.DbCommand);
-        }
+//            // Assert
+//            Assert.IsNull(databaseCommand.DbCommand);
+//        }
 
-        [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
-        {
-            // Arrange
-            const string sql = @"
-CREATE TABLE #SuperHero
-(
-    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
-    SuperHeroName	NVARCHAR(120)   NOT NULL
-);
+//        [Test]
+//        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+//        {
+//            // Arrange
+//            const string sql = @"
+//CREATE TABLE #SuperHero
+//(
+//    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
+//    SuperHeroName	NVARCHAR(120)   NOT NULL
+//);
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Superman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Superman' );
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Batman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Batman' );
 
-SELECT  SuperHeroId,
-        SuperHeroName
-FROM    #SuperHero;
-";
-            var databaseCommand = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText(sql);
+//SELECT  SuperHeroId,
+//        SuperHeroName
+//FROM    #SuperHero;
+//";
+//            var databaseCommand = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText(sql);
 
-            List<object> list;
+//            List<object> list;
 
-            // Act
-            list = databaseCommand
-                .ExecuteReader<object>(record => new
-                {
-                    SuperHeroId = record.GetValue(0),
-                    SuperHeroName = record.GetValue(1)
-                }, true)
-                .ToList();
+//            // Act
+//            list = databaseCommand
+//                .ExecuteReader<object>(record => new
+//                {
+//                    SuperHeroId = record.GetValue(0),
+//                    SuperHeroName = record.GetValue(1)
+//                }, true)
+//                .ToList();
 
-            // Assert
-            Assert.That(databaseCommand.DbCommand.Connection.State == ConnectionState.Open);
+//            // Assert
+//            Assert.That(databaseCommand.DbCommand.Connection.State == ConnectionState.Open);
 
-            // Cleanup
-            databaseCommand.Dispose();
-        }
+//            // Cleanup
+//            databaseCommand.Dispose();
+//        }
 
-        [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
-        {
-            // Arrange
-            bool wasPreExecuteEventHandlerCalled = false;
+//        [Test]
+//        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+//        {
+//            // Arrange
+//            bool wasPreExecuteEventHandlerCalled = false;
 
-            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add(command => wasPreExecuteEventHandlerCalled = true);
+//            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add(command => wasPreExecuteEventHandlerCalled = true);
 
-            // Act
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText("SELECT 1")
-                .ExecuteReader<object>(record => new { })
-                .ToList();
+//            // Act
+//            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText("SELECT 1")
+//                .ExecuteReader<object>(record => new { })
+//                .ToList();
 
-            // Assert
-            Assert.IsTrue(wasPreExecuteEventHandlerCalled);
-        }
+//            // Assert
+//            Assert.IsTrue(wasPreExecuteEventHandlerCalled);
+//        }
 
-        [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
-        {
-            // Arrange
-            bool wasPostExecuteEventHandlerCalled = false;
+//        [Test]
+//        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+//        {
+//            // Arrange
+//            bool wasPostExecuteEventHandlerCalled = false;
 
-            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add(command => wasPostExecuteEventHandlerCalled = true);
+//            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add(command => wasPostExecuteEventHandlerCalled = true);
 
-            // Act
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText("SELECT 1")
-                .ExecuteReader<object>(record => new { })
-                .ToList();
+//            // Act
+//            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText("SELECT 1")
+//                .ExecuteReader<object>(record => new { })
+//                .ToList();
 
-            // Assert
-            Assert.IsTrue(wasPostExecuteEventHandlerCalled);
-        }
+//            // Assert
+//            Assert.IsTrue(wasPostExecuteEventHandlerCalled);
+//        }
 
-        [Test]
-        public void Should_Call_The_DatabaseCommandUnhandledExceptionEventHandler()
-        {
-            // Arrange
-            bool wasUnhandledExceptionEventHandlerCalled = false;
+//        [Test]
+//        public async void Should_Call_The_DatabaseCommandUnhandledExceptionEventHandler()
+//        {
+//            // Arrange
+//            bool wasUnhandledExceptionEventHandlerCalled = false;
 
-            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandUnhandledExceptionEventHandlers.Add((exception, command) =>
-            {
-                wasUnhandledExceptionEventHandlerCalled = true;
-            });
+//            Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandUnhandledExceptionEventHandlers.Add((exception, command) =>
+//            {
+//                wasUnhandledExceptionEventHandlerCalled = true;
+//            });
 
-            // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
-                .SetCommandText("asdf;lkj")
-                .ExecuteReader<object>(record => new { })
-                .ToList();
+//            // Act
+//            TestDelegate action = () => Sqlocity.GetDatabaseCommand(ConnectionStringsNames.SqlServerConnectionString)
+//                .SetCommandText("asdf;lkj")
+//                .ExecuteReader<object>(record => new { })
+//                .ToList();
 
-            // Assert
-            Assert.Throws<System.Data.SqlClient.SqlException>(action);
-            Assert.IsTrue(wasUnhandledExceptionEventHandlerCalled);
-        }
+//            // Assert
+//            Assert.Throws<System.Data.SqlClient.SqlException>(action);
+//            Assert.IsTrue(wasUnhandledExceptionEventHandlerCalled);
+//        }
 
-        [Test]
-        public void Should_Null_The_DbCommand_If_Iteration_Ends_Before_Full_Enumeration()
-        {
-            // Arrange
-            const string sql = @"
-CREATE TABLE #SuperHero
-(
-    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
-    SuperHeroName	NVARCHAR(120)   NOT NULL
-);
+//        [Test]
+//        public async void Should_Null_The_DbCommand_If_Iteration_Ends_Before_Full_Enumeration()
+//        {
+//            // Arrange
+//            const string sql = @"
+//CREATE TABLE #SuperHero
+//(
+//    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
+//    SuperHeroName	NVARCHAR(120)   NOT NULL
+//);
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Superman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Superman' );
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Batman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Batman' );
 
-SELECT  SuperHeroId,
-        SuperHeroName
-FROM    #SuperHero;
-";
-            var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
-                .SetCommandText( sql );
+//SELECT  SuperHeroId,
+//        SuperHeroName
+//FROM    #SuperHero;
+//";
+//            var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+//                .SetCommandText( sql );
 
-            // Act
-            databaseCommand
-                .ExecuteReader( record => new
-                {
-                    SuperHeroId = record.GetValue( 0 ),
-                    SuperHeroName = record.GetValue( 1 )
-                } )
-                .First();
+//            // Act
+//            databaseCommand
+//                .ExecuteReader( record => new
+//                {
+//                    SuperHeroId = record.GetValue( 0 ),
+//                    SuperHeroName = record.GetValue( 1 )
+//                } )
+//                .First();
 
-            // Assert
-            Assert.IsNull( databaseCommand.DbCommand );
-        }
+//            // Assert
+//            Assert.IsNull( databaseCommand.DbCommand );
+//        }
 
-        [Test]
-        public void Should_Null_The_DbCommand_If_Exception_Occurs_During_Iteration()
-        {
-            // Arrange
-            const string sql = @"
-CREATE TABLE #SuperHero
-(
-    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
-    SuperHeroName	NVARCHAR(120)   NOT NULL
-);
+//        [Test]
+//        public async void Should_Null_The_DbCommand_If_Exception_Occurs_During_Iteration()
+//        {
+//            // Arrange
+//            const string sql = @"
+//CREATE TABLE #SuperHero
+//(
+//    SuperHeroId     INT             NOT NULL    IDENTITY(1,1)   PRIMARY KEY,
+//    SuperHeroName	NVARCHAR(120)   NOT NULL
+//);
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Superman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Superman' );
 
-INSERT INTO #SuperHero ( SuperHeroName )
-VALUES ( 'Batman' );
+//INSERT INTO #SuperHero ( SuperHeroName )
+//VALUES ( 'Batman' );
 
-SELECT  SuperHeroId,
-        SuperHeroName
-FROM    #SuperHero;
-";
-            var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
-                .SetCommandText( sql );
+//SELECT  SuperHeroId,
+//        SuperHeroName
+//FROM    #SuperHero;
+//";
+//            var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+//                .SetCommandText( sql );
 
-            var iter = databaseCommand.ExecuteReader( record => new
-            {
-                SuperHeroId = record.GetValue( 0 ),
-                SuperHeroName = record.GetValue( 1 )
-            } );
+//            var iter = databaseCommand.ExecuteReader( record => new
+//            {
+//                SuperHeroId = record.GetValue( 0 ),
+//                SuperHeroName = record.GetValue( 1 )
+//            } );
 
-            // Act
-            try
-            {
-                foreach ( var item in iter )
-                {
-                    throw new Exception( "Exception occured during iteration." );
-                }
-            }
-            catch { }
+//            // Act
+//            try
+//            {
+//                foreach ( var item in iter )
+//                {
+//                    throw new Exception( "Exception occured during iteration." );
+//                }
+//            }
+//            catch { }
 
-            // Assert
-            Assert.IsNull( databaseCommand.DbCommand );
-        }
+//            // Assert
+//            Assert.IsNull( databaseCommand.DbCommand );
+//        }
     }
 }

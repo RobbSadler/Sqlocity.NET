@@ -7,7 +7,7 @@ namespace SqlocityNetCore.Tests.SQLite.DatabaseCommandExtensionsTests
     public class ExecuteNonQueryTests
     {
         [Test]
-        public void Should_Return_The_Number_Of_Affected_Rows()
+        public async void Should_Return_The_Number_Of_Affected_Rows()
         {
             // Arrange
             const string sql = @"
@@ -22,16 +22,16 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
 ";
 
             // Act
-            var rowsAffected = Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            var rowsAffected = await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( sql )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.That( rowsAffected == 1 );
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -48,14 +48,14 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteNonQuery();
+            await databaseCommand.ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsNull( databaseCommand.DbCommand );
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -72,7 +72,7 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
                 .SetCommandText( sql );
 
             // Act
-            var rowsAffected = databaseCommand.ExecuteNonQuery( true );
+            var rowsAffected = await databaseCommand.ExecuteNonQueryAsync( true );
 
             // Assert
             Assert.That( databaseCommand.DbCommand.Connection.State == ConnectionState.Open );
@@ -82,7 +82,7 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -90,16 +90,16 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsTrue( wasPreExecuteEventHandlerCalled );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -107,9 +107,9 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsTrue( wasPostExecuteEventHandlerCalled );
@@ -127,9 +127,9 @@ INSERT OR IGNORE INTO SuperHero VALUES ( NULL, 'Superman' ); /* This insert shou
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.Throws<System.Data.SQLite.SQLiteException>( action );

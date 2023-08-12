@@ -13,7 +13,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
         }
 
         [Test]
-        public void Should_Call_The_DataRecordCall_Action_For_Each_Record_In_The_Result_Set()
+        public async void Should_Call_The_DataRecordCall_Action_For_Each_Record_In_The_Result_Set()
         {
             // Arrange
             const string sql = @"
@@ -35,9 +35,9 @@ FROM    #SuperHero;
 ";
 
             // Act
-            var superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sql )
-                .ExecuteToMap( record =>
+                .ExecuteToMapAsync( record =>
                 {
                     var obj = new SuperHero
                     {
@@ -53,7 +53,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -77,7 +77,7 @@ FROM    #SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            var superHeroes = databaseCommand.ExecuteToMap( record =>
+            var superHeroes = await databaseCommand.ExecuteToMapAsync( record =>
             {
                 var obj = new SuperHero
                 {
@@ -93,7 +93,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -117,7 +117,7 @@ FROM    #SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            var superHeroes = databaseCommand.ExecuteToMap( record =>
+            var superHeroes = await databaseCommand.ExecuteToMapAsync( record =>
             {
                 var obj = new SuperHero
                 {
@@ -136,7 +136,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -144,9 +144,9 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            var superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1 as SuperHeroId, 'Superman' as SuperHeroName" )
-                .ExecuteToMap( record =>
+                .ExecuteToMapAsync( record =>
                 {
                     var obj = new SuperHero
                     {
@@ -162,7 +162,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -170,9 +170,9 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            var superHeroes = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var superHeroes = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1 as SuperHeroId, 'Superman' as SuperHeroName" )
-                .ExecuteToMap( record =>
+                .ExecuteToMapAsync( record =>
                 {
                     var obj = new SuperHero
                     {
@@ -199,9 +199,9 @@ FROM    #SuperHero;
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteToMap( record =>
+                .ExecuteToMapAsync( record =>
                 {
                     var obj = new SuperHero
                     {

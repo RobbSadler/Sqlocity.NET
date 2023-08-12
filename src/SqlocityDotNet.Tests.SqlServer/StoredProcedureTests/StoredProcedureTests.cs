@@ -13,7 +13,7 @@ namespace SqlocityNetCore.Tests.SqlServer.StoredProcedureTests
 		}
 
 		[Test]
-		public void Stored_Procedure_Test_Using_SetCommandType()
+		public async void Stored_Procedure_Test_Using_SetCommandType()
 		{
 			// Arrange
 			const string dropStoredProcedureSql = @"
@@ -43,20 +43,20 @@ AS
 	END
 ";
 
-			Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandText( dropStoredProcedureSql )
-				.ExecuteNonQuery();
+				.ExecuteNonQueryAsync();
 
-			Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandText( createStoredProcedureSql )
-				.ExecuteNonQuery();
+				.ExecuteNonQueryAsync();
 
 			// Act
-			var superhero = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+			var superhero = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandType( CommandType.StoredProcedure )
 				.SetCommandText( "GetSuperHeroByName" )
 				.AddParameter( "@SuperHeroName", "Superman", DbType.AnsiString )
-				.ExecuteToObject<SuperHero>();
+				.ExecuteToObjectAsync<SuperHero>();
 
 			// Assert
 			Assert.NotNull( superhero );
@@ -64,7 +64,7 @@ AS
 		}
 
 		[Test]
-		public void Stored_Procedure_Test_Using_Exec_Statement()
+		public async void Stored_Procedure_Test_Using_Exec_Statement()
 		{
 			// Arrange
 			const string dropStoredProcedureSql = @"
@@ -94,19 +94,19 @@ AS
 	END
 ";
 
-			Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandText( dropStoredProcedureSql )
-				.ExecuteNonQuery();
+				.ExecuteNonQueryAsync();
 
-			Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandText( createStoredProcedureSql )
-				.ExecuteNonQuery();
+				.ExecuteNonQueryAsync();
 
 			// Act
-			var superhero = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+			var superhero = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
 				.SetCommandText( "EXEC GetSuperHeroByName @SuperHeroName" )
 				.AddParameter( "@SuperHeroName", "Superman", DbType.AnsiString )
-				.ExecuteToObject<SuperHero>();
+				.ExecuteToObjectAsync<SuperHero>();
 
 			// Assert
 			Assert.NotNull( superhero );

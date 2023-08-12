@@ -18,7 +18,7 @@ namespace SqlocityNetCore.Tests.PostgreSQL.DatabaseCommandExtensionsTests
         }
 
         [Test]
-        public void Should_Return_The_Last_Inserted_Id()
+        public async void Should_Return_The_Last_Inserted_Id()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -33,24 +33,23 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL(customer, "public.Customer")
-                .ExecuteScalar()
-                .ToInt();
+                .ExecuteScalarAsync<int>();
 
             // Assert
             Assert.That(customerId == 1);
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
+        public async void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -65,17 +64,16 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             var newCustomer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL(newCustomer)
-                .ExecuteScalar()
-                .ToInt();
+                .ExecuteScalarAsync<int>();
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -85,9 +83,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customer = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(selectCustomerQuery)
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That(customerId == 1);
@@ -98,7 +96,7 @@ FROM    Customer;
         }
 
         [Test]
-        public void Should_Be_Able_To_Specify_The_Table_Name()
+        public async void Should_Be_Able_To_Specify_The_Table_Name()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -113,23 +111,23 @@ CREATE TABLE IF NOT EXISTS Person
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL(customer, "Person") // Specifying a table name of Person
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             // Assert
             Assert.That(customerId == 1);
         }
 
         [Test]
-        public void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
+        public async void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -144,16 +142,16 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             var customer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL(customer)
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             // Assert
             var exception = Assert.Catch<ArgumentNullException>(action);
@@ -161,7 +159,7 @@ CREATE TABLE IF NOT EXISTS Customer
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
+        public async void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -176,16 +174,16 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             var newCustomer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL(newCustomer, "Customer")
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -195,9 +193,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customer = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(selectCustomerQuery)
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That(customerId == 1);
@@ -208,7 +206,7 @@ FROM    Customer;
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_A_Dynamic_ExpandoObject()
+        public async void Should_Handle_Generating_Inserts_For_A_Dynamic_ExpandoObject()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -223,9 +221,9 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             dynamic newCustomer = new ExpandoObject();
             newCustomer.FirstName = "Clark";
@@ -235,8 +233,8 @@ CREATE TABLE IF NOT EXISTS Customer
             // Act
             var databaseCommand = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString);
             databaseCommand = DatabaseCommandExtensions.GenerateInsertForPostgreSQL(databaseCommand, newCustomer, "Customer");
-            var customerId = databaseCommand
-                .ExecuteScalar<int>();
+            var customerId = await databaseCommand
+                .ExecuteScalarAsync<int>();
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -246,9 +244,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customer = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(selectCustomerQuery)
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That(customerId == 1);
@@ -259,7 +257,7 @@ FROM    Customer;
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_A_Dictionary_Of_String_Object()
+        public async void Should_Handle_Generating_Inserts_For_A_Dictionary_Of_String_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -274,9 +272,9 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             dynamic newCustomer = new ExpandoObject();
             newCustomer.FirstName = "Clark";
@@ -284,9 +282,9 @@ CREATE TABLE IF NOT EXISTS Customer
             newCustomer.DateOfBirth = DateTime.Parse("06/18/1938");
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL((IDictionary<string, object>)newCustomer, "Customer")
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -296,9 +294,9 @@ SELECT  CustomerId,
 FROM    public.Customer;
 ";
 
-            var customer = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customer = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(selectCustomerQuery)
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That(customerId == 1);
@@ -309,7 +307,7 @@ FROM    public.Customer;
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_An_Anonymous_Object_Converted_Into_A_Dynamic()
+        public async void Should_Handle_Generating_Inserts_For_An_Anonymous_Object_Converted_Into_A_Dynamic()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -324,16 +322,16 @@ CREATE TABLE IF NOT EXISTS Customer
     PRIMARY KEY ( CustomerId )
 );
 ";
-            Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(createSchemaSql)
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             dynamic newCustomer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse("06/18/1938") };
 
             // Act
-            var customerId = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customerId = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .GenerateInsertForPostgreSQL((object)newCustomer, "Customer")
-                .ExecuteScalar<int>();
+                .ExecuteScalarAsync<int>();
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -343,9 +341,9 @@ SELECT  CustomerId,
 FROM    public.Customer;
 ";
 
-            var customer = Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
+            var customer = await Sqlocity.GetDatabaseCommand(ConnectionStringsNames.PostgreSQLConnectionString)
                 .SetCommandText(selectCustomerQuery)
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That(customerId == 1);

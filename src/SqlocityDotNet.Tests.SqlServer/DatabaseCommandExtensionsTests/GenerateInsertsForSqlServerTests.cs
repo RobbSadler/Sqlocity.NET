@@ -19,7 +19,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 		}
 
 		[Test]
-		public void Should_Return_The_Last_Inserted_Ids()
+		public async void Should_Return_The_Last_Inserted_Ids()
 		{
 			// Arrange
 			const string sql = @"
@@ -52,9 +52,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( sql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			var customer1 = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 			var customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -62,9 +62,9 @@ END
 			var list = new List<Customer> { customer1, customer2, customer3 };
 			
 			// Act
-			var customerIds = new DatabaseCommand( dbConnection )
+			var customerIds = await new DatabaseCommand( dbConnection )
 				.GenerateInsertsForSqlServer( list )
-				.ExecuteToList<long>();
+				.ExecuteToListAsync<long>();
 
 			// Assert
 			Assert.That( customerIds.Count == 3 );
@@ -74,7 +74,7 @@ END
 		}
 
 		[Test]
-		public void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
+		public async void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
 		{
 			// Arrange
 			const string createSchemaSql = @"
@@ -107,9 +107,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( createSchemaSql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			var customer1 = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 			var customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -117,9 +117,9 @@ END
 			var list = new List<Customer> { customer1, customer2, customer3 };
 
 			// Act
-			var customerIds = new DatabaseCommand( dbConnection )
+			var customerIds = await new DatabaseCommand( dbConnection )
 				.GenerateInsertsForSqlServer( list )
-				.ExecuteToList<long>( true );
+				.ExecuteToListAsync<long>( true );
 
 			const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -130,10 +130,10 @@ FROM    Customer
 WHERE   CustomerId IN ( @CustomerIds );
 ";
 
-			var customers = new DatabaseCommand( dbConnection )
+			var customers = (await new DatabaseCommand( dbConnection )
 				.SetCommandText( selectCustomerQuery )
 				.AddParameters( "@CustomerIds", customerIds, DbType.Int64 )
-				.ExecuteToList<Customer>()
+				.ExecuteToListAsync<Customer>())
 				.OrderBy( x => x.CustomerId )
 				.ToList();
 
@@ -157,7 +157,7 @@ WHERE   CustomerId IN ( @CustomerIds );
 		}
 
 		[Test]
-		public void Should_Be_Able_To_Specify_The_Table_Name()
+		public async void Should_Be_Able_To_Specify_The_Table_Name()
 		{
 			// Arrange
 			const string sql = @"
@@ -190,9 +190,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( sql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			var customer1 = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 			var customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -200,16 +200,16 @@ END
 			var list = new List<Customer> { customer1, customer2, customer3 };
 
 			// Act
-			var numberOfAffectedRecords = new DatabaseCommand( dbConnection )
+			var numberOfAffectedRecords = await new DatabaseCommand( dbConnection )
 				.GenerateInsertsForSqlServer( list, "[Person]" ) // Specifying a table name of Person
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			// Assert
 			Assert.That( numberOfAffectedRecords == list.Count );
 		}
 
 		[Test]
-		public void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
+		public async void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
 		{
 			// Arrange
 			const string sql = @"
@@ -242,9 +242,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( sql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			var customer1 = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 			var customer2 = new { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -252,10 +252,9 @@ END
 			var list = new List<object> { customer1, customer2, customer3 };
 
 			// Act
-			TestDelegate action = () => new DatabaseCommand( dbConnection )
+			TestDelegate action = async () => await new DatabaseCommand( dbConnection )
                 .GenerateInsertsForSqlServer( list )
-				.ExecuteScalar( true )
-				.ToInt();
+				.ExecuteScalarAsync<int>( true );
 
 			// Assert
 			var exception = Assert.Catch<ArgumentNullException>( action );
@@ -263,7 +262,7 @@ END
 		}
 
 		[Test]
-		public void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
+		public async void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
 		{
 			// Arrange
 			const string createSchemaSql = @"
@@ -296,9 +295,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( createSchemaSql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			var customer1 = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 			var customer2 = new { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -306,9 +305,9 @@ END
 			var list = new List<object> { customer1, customer2, customer3 };
 
 			// Act
-			var customerIds = new DatabaseCommand( dbConnection )
+			var customerIds = await new DatabaseCommand( dbConnection )
 				.GenerateInsertsForSqlServer( list, "Customer" )
-				.ExecuteToList<long>( true );
+				.ExecuteToListAsync<long>( true );
 
 			const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -319,10 +318,10 @@ FROM    Customer
 WHERE   CustomerId IN ( @CustomerIds );
 ";
 
-			var customers = new DatabaseCommand( dbConnection )
+			var customers = (await new DatabaseCommand( dbConnection )
 				.SetCommandText( selectCustomerQuery )
 				.AddParameters( "@CustomerIds", customerIds, DbType.Int64 )
-				.ExecuteToList<Customer>()
+				.ExecuteToListAsync<Customer>())
 				.OrderBy( x => x.CustomerId )
 				.ToList();
 
@@ -346,7 +345,7 @@ WHERE   CustomerId IN ( @CustomerIds );
 		}
 
 		[Test]
-		public void Should_Handle_Generating_Inserts_For_A_Dynamic_Object()
+		public async void Should_Handle_Generating_Inserts_For_A_Dynamic_Object()
 		{
 			// Arrange
 			const string createSchemaSql = @"
@@ -379,9 +378,9 @@ END
 
 			var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqlServerConnectionString );
 
-			new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
 				.SetCommandText( createSchemaSql )
-				.ExecuteNonQuery( true );
+				.ExecuteNonQueryAsync( true );
 
 			dynamic customer1 = new ExpandoObject();
 			customer1.FirstName = "Clark";
@@ -401,9 +400,9 @@ END
 			var list = new List<dynamic> { customer1, customer2, customer3 };
 
 			// Act
-			var customerIds = new DatabaseCommand( dbConnection )
+			var customerIds = await new DatabaseCommand( dbConnection )
 				.GenerateInsertsForSqlServer( list, "Customer" )
-				.ExecuteToList<long>( true );
+				.ExecuteToListAsync<long>( true );
 
 			const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -414,10 +413,10 @@ FROM    Customer
 WHERE   CustomerId IN ( @CustomerIds );
 ";
 
-			var customers = new DatabaseCommand( dbConnection )
+			var customers = (await new DatabaseCommand( dbConnection )
 				.SetCommandText( selectCustomerQuery )
 				.AddParameters( "@CustomerIds", customerIds, DbType.Int64 )
-				.ExecuteToList<Customer>()
+				.ExecuteToListAsync<Customer>())
 				.OrderBy( x => x.CustomerId )
 				.ToList();
 
