@@ -8,8 +8,8 @@
     <Company>none</Company>
     <Product>Sqlocity.NetCore</Product>
     <Copyright>Copyright © 2015 Ambit Energy. All rights reserved.</Copyright>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>A port of Sequelocity to .Net core</Title>
     <PackageProjectUrl>https://github.com/RobbSadler/Sqlocity.NET</PackageProjectUrl>
