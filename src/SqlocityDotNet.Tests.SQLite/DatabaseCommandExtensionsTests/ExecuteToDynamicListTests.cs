@@ -141,7 +141,7 @@ FROM    SuperHero;
         }
 
         [Test]
-        public async void Should_Call_The_DatabaseCommandUnhandledExceptionEventHandler()
+        public void Should_Call_The_DatabaseCommandUnhandledExceptionEventHandler()
         {
             // Arrange
             bool wasUnhandledExceptionEventHandlerCalled = false;

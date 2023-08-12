@@ -7,7 +7,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 	public class BeginTransactionTests
 	{
 		[Test]
-		public async void Should_Return_A_New_DbTransaction()
+		public void Should_Return_A_New_DbTransaction()
 		{
 			// Arrange
             var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString );
@@ -21,7 +21,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 		}
 
 		[Test]
-		public async void Should_Associate_The_DbTransaction_With_The_DatabaseCommand()
+		public void Should_Associate_The_DbTransaction_With_The_DatabaseCommand()
 		{
 			// Arrange
 			var databaseCommand = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString );

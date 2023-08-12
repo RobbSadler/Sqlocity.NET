@@ -16,7 +16,7 @@ namespace SqlocityNetCore.Tests.SQLite.DatabaseCommandExtensionsTests
         }
 
         [Test]
-        public void Should_Return_The_Last_Inserted_Id()
+        public async void Should_Return_The_Last_Inserted_Id()
         {
             // Arrange
             const string sql = @"
@@ -29,24 +29,23 @@ CREATE TABLE IF NOT EXISTS Customer
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( sql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync( true );
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
             // Act
-            var customerId = new DatabaseCommand( dbConnection )
+            var customerId = await new DatabaseCommand( dbConnection )
                 .GenerateInsertForSQLite( customer )
-                .ExecuteScalar( true )
-                .ToInt();
+                .ExecuteScalarAsync<int>( true );
 
             // Assert
             Assert.That( customerId == 1 );
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
+        public async void Should_Handle_Generating_Inserts_For_A_Strongly_Typed_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -59,17 +58,16 @@ CREATE TABLE IF NOT EXISTS Customer
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( createSchemaSql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync(true );
 
             var newCustomer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
             // Act
-            var customerId = new DatabaseCommand( dbConnection )
+            var customerId = await new DatabaseCommand( dbConnection )
                 .GenerateInsertForSQLite( newCustomer )
-                .ExecuteScalar( true )
-                .ToInt();
+                .ExecuteScalarAsync<int>( true );
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -79,9 +77,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = new DatabaseCommand( dbConnection )
+            var customer = await new DatabaseCommand( dbConnection )
                 .SetCommandText( selectCustomerQuery )
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That( customerId == 1 );
@@ -92,7 +90,7 @@ FROM    Customer;
         }
 
         [Test]
-        public void Should_Be_Able_To_Specify_The_Table_Name()
+        public async void Should_Be_Able_To_Specify_The_Table_Name()
         {
             // Arrange
             const string sql = @"
@@ -105,24 +103,23 @@ CREATE TABLE IF NOT EXISTS Person
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( sql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync( true );
 
             var customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
             // Act
-            var customerId = new DatabaseCommand( dbConnection )
+            var customerId = await new DatabaseCommand( dbConnection )
                 .GenerateInsertForSQLite( customer, "[Person]" ) // Specifying a table name of Person
-                .ExecuteScalar( true )
-                .ToInt();
+                .ExecuteScalarAsync<int>( true );
 
             // Assert
             Assert.That( customerId == 1 );
         }
 
         [Test]
-        public void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
+        public async void Should_Throw_An_Exception_When_Passing_An_Anonymous_Object_And_Not_Specifying_A_TableName()
         {
             // Arrange
             const string sql = @"
@@ -135,17 +132,16 @@ CREATE TABLE IF NOT EXISTS Person
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString, "System.Data.SQLite" );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( sql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync( true );
 
             var customer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
             // Act
-            TestDelegate action = () => new DatabaseCommand( dbConnection )
+            TestDelegate action = async () => await new DatabaseCommand( dbConnection )
                 .GenerateInsertForSQLite( customer )
-                .ExecuteScalar( true )
-                .ToInt();
+                .ExecuteScalarAsync<int>( true );
 
             // Assert
             var exception = Assert.Catch<ArgumentNullException>( action );
@@ -153,7 +149,7 @@ CREATE TABLE IF NOT EXISTS Person
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
+        public async void Should_Handle_Generating_Inserts_For_An_Anonymous_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -166,17 +162,16 @@ CREATE TABLE IF NOT EXISTS Customer
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( createSchemaSql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync( true );
 
             var newCustomer = new { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
             // Act
-            var customerId = new DatabaseCommand( dbConnection )
+            var customerId = await new DatabaseCommand( dbConnection )
                 .GenerateInsertForSQLite( newCustomer, "[Customer]" )
-                .ExecuteScalar( true )
-                .ToInt();
+                .ExecuteScalarAsync<int>( true );
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -186,9 +181,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = new DatabaseCommand( dbConnection )
+            var customer = await new DatabaseCommand( dbConnection )
                 .SetCommandText( selectCustomerQuery )
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That( customerId == 1 );
@@ -199,7 +194,7 @@ FROM    Customer;
         }
 
         [Test]
-        public void Should_Handle_Generating_Inserts_For_A_Dynamic_Object()
+        public async void Should_Handle_Generating_Inserts_For_A_Dynamic_Object()
         {
             // Arrange
             const string createSchemaSql = @"
@@ -212,9 +207,9 @@ CREATE TABLE IF NOT EXISTS Customer
 );";
             var dbConnection = Sqlocity.CreateDbConnection( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString );
 
-            new DatabaseCommand( dbConnection )
+            await new DatabaseCommand( dbConnection )
                 .SetCommandText( createSchemaSql )
-                .ExecuteNonQuery( true );
+                .ExecuteNonQueryAsync( true );
 
             dynamic newCustomer = new ExpandoObject();
             newCustomer.FirstName = "Clark";
@@ -224,9 +219,8 @@ CREATE TABLE IF NOT EXISTS Customer
             // Act
             var databaseCommand = new DatabaseCommand( dbConnection );
             databaseCommand = DatabaseCommandExtensions.GenerateInsertForSQLite( databaseCommand, newCustomer, "[Customer]" );
-            var customerId = databaseCommand
-                .ExecuteScalar( true )
-                .ToInt();
+            var customerId = await databaseCommand
+                .ExecuteScalarAsync<int>( true );
 
             const string selectCustomerQuery = @"
 SELECT  CustomerId,
@@ -236,9 +230,9 @@ SELECT  CustomerId,
 FROM    Customer;
 ";
 
-            var customer = new DatabaseCommand( dbConnection )
+            var customer = await new DatabaseCommand( dbConnection )
                 .SetCommandText( selectCustomerQuery )
-                .ExecuteToObject<Customer>();
+                .ExecuteToObjectAsync<Customer>();
 
             // Assert
             Assert.That( customerId == 1 );

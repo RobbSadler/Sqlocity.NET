@@ -7,7 +7,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
     public class ExecuteScalarTests
     {
         [Test]
-        public void Should_Return_The_First_Column_Of_The_First_Row_In_The_Result_Set()
+        public async void Should_Return_The_First_Column_Of_The_First_Row_In_The_Result_Set()
         {
             // Arrange
             const string sql = @"
@@ -26,10 +26,9 @@ FROM    #SuperHero;
 ";
 
             // Act
-            var superHeroId = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var superHeroId = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sql )
-                .ExecuteScalar()
-                .ToLong();
+                .ExecuteScalarAsync<long>();
 
             // Assert
             Assert.That( superHeroId == 1 );
@@ -37,7 +36,7 @@ FROM    #SuperHero;
 
         [Test]
         [Description( "This tests the generic version of the ExecuteScaler method." )]
-        public void Should_Return_The_First_Column_Of_The_First_Row_In_The_Result_Set_And_Convert_It_To_The_Type_Specified()
+        public async void Should_Return_The_First_Column_Of_The_First_Row_In_The_Result_Set_And_Convert_It_To_The_Type_Specified()
         {
             // Arrange
             const string sql = @"
@@ -56,16 +55,16 @@ FROM    #SuperHero;
 ";
 
             // Act
-            var superHeroId = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var superHeroId = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sql )
-                .ExecuteScalar<long>(); // Generic version of the ExecuteScalar method
+                .ExecuteScalarAsync<long>(); // Generic version of the ExecuteScalar method
 
             // Assert
             Assert.That( superHeroId == 1 );
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -86,14 +85,14 @@ FROM    #SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteScalar();
+            await databaseCommand.ExecuteScalarAsync();
 
             // Assert
             Assert.IsNull( databaseCommand.DbCommand );
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -114,7 +113,7 @@ FROM    #SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteScalar( true );
+            await databaseCommand.ExecuteScalarAsync( true );
 
             // Assert
             Assert.That( databaseCommand.DbCommand.Connection.State == ConnectionState.Open );
@@ -124,7 +123,7 @@ FROM    #SuperHero;
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -132,16 +131,16 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteScalar();
+                .ExecuteScalarAsync();
 
             // Assert
             Assert.IsTrue( wasPreExecuteEventHandlerCalled );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -149,9 +148,9 @@ FROM    #SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteScalar();
+                .ExecuteScalarAsync();
 
             // Assert
             Assert.IsTrue( wasPostExecuteEventHandlerCalled );
@@ -169,9 +168,9 @@ FROM    #SuperHero;
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteScalar();
+                .ExecuteScalarAsync();
 
             // Assert
             Assert.Throws<System.Data.SqlClient.SqlException>( action );

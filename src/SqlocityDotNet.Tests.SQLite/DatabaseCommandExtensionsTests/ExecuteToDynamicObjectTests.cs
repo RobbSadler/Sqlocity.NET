@@ -13,7 +13,7 @@ namespace SqlocityNetCore.Tests.SQLite.DatabaseCommandExtensionsTests
         }
 
         [Test]
-        public void Should_Map_The_Results_Back_To_A_List_Of_Dynamic()
+        public async  void Should_Map_The_Results_Back_To_A_List_Of_Dynamic()
         {
             // Arrange
             const string sql = @"
@@ -33,9 +33,9 @@ FROM    SuperHero;
 ";
 
             // Act
-            var superHero = Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            var superHero = await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( sql )
-                .ExecuteToDynamicObject();
+                .ExecuteToDynamicObjectAsync();
 
             // Assert
             Assert.NotNull( superHero );
@@ -44,7 +44,7 @@ FROM    SuperHero;
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async  void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -65,14 +65,14 @@ FROM    SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteToDynamicObject();
+            await databaseCommand.ExecuteToDynamicObjectAsync();
 
             // Assert
             Assert.IsNull( databaseCommand.DbCommand );
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async  void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -93,7 +93,7 @@ FROM    SuperHero;
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteToDynamicObject( true );
+            await databaseCommand.ExecuteToDynamicObjectAsync( true );
 
             // Assert
             Assert.That( databaseCommand.DbCommand.Connection.State == ConnectionState.Open );
@@ -103,7 +103,7 @@ FROM    SuperHero;
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async  void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -111,16 +111,16 @@ FROM    SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "SELECT 1 as SuperHeroId, 'Superman' as SuperHeroName" )
-                .ExecuteToDynamicObject();
+                .ExecuteToDynamicObjectAsync();
 
             // Assert
             Assert.IsTrue( wasPreExecuteEventHandlerCalled );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async  void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -128,9 +128,9 @@ FROM    SuperHero;
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "SELECT 1 as SuperHeroId, 'Superman' as SuperHeroName" )
-                .ExecuteToDynamicObject();
+                .ExecuteToDynamicObjectAsync();
 
             // Assert
             Assert.IsTrue( wasPostExecuteEventHandlerCalled );
@@ -148,9 +148,9 @@ FROM    SuperHero;
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommandForSQLite( ConnectionStringsNames.SqliteInMemoryDatabaseConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteToDynamicObject();
+                .ExecuteToDynamicObjectAsync();
 
             // Assert
             Assert.Throws<System.Data.SQLite.SQLiteException>( action );

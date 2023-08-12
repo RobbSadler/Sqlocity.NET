@@ -18,7 +18,7 @@ public class Customer
 }
 
 [Test]
-public void GenerateInsertForSQLite_Example()
+public async void GenerateInsertForSQLite_Example()
 {
     // Arrange
     const string sql = @"
@@ -32,24 +32,23 @@ CREATE TABLE IF NOT EXISTS Customer
 
     DbConnection dbConnection = Sqlocity.CreateDbConnection( "SqliteInMemoryDatabaseConnectionString" );
 
-    Sqlocity.GetDatabaseCommand( dbConnection )
+    await Sqlocity.GetDatabaseCommand( dbConnection )
         .SetCommandText( sql )
-        .ExecuteNonQuery( true );
+        .ExecuteNonQueryAsync( true );
 
     Customer customer = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
 
     // Act
-    int customerId = Sqlocity.GetDatabaseCommand( dbConnection )
+    int customerId = await Sqlocity.GetDatabaseCommand( dbConnection )
         .GenerateInsertForSQLite( customer )
-        .ExecuteScalar( true )
-        .ToInt();
+        .ExecuteScalarAsync<int>( true );
 
     // Assert
     Assert.That( customerId == 1 );
 }
 
 [Test]
-public void GenerateInsertsForSQLite_Example()
+public async void GenerateInsertsForSQLite_Example()
 {
     // Arrange
     const string sql = @"
@@ -63,9 +62,9 @@ CREATE TABLE IF NOT EXISTS Customer
 
     DbConnection dbConnection = Sqlocity.CreateDbConnection( "SqliteInMemoryDatabaseConnectionString" );
 
-    Sqlocity.GetDatabaseCommand( dbConnection )
+    await Sqlocity.GetDatabaseCommand( dbConnection )
         .SetCommandText( sql )
-        .ExecuteNonQuery( true );
+        .ExecuteNonQueryAsync( true );
 
     Customer customer1 = new Customer { FirstName = "Clark", LastName = "Kent", DateOfBirth = DateTime.Parse( "06/18/1938" ) };
     Customer customer2 = new Customer { FirstName = "Bruce", LastName = "Wayne", DateOfBirth = DateTime.Parse( "05/27/1939" ) };
@@ -73,9 +72,9 @@ CREATE TABLE IF NOT EXISTS Customer
     List<Customer> list = new List<Customer> { customer1, customer2, customer3 };
 
     // Act
-    List<long> customerIds = Sqlocity.GetDatabaseCommand( dbConnection )
+    List<long> customerIds = await Sqlocity.GetDatabaseCommand( dbConnection )
         .GenerateInsertsForSQLite( list )
-        .ExecuteToList<long>();
+        .ExecuteToListAsync<long>();
 
     // Assert
     Assert.That( customerIds.Count == 3 );

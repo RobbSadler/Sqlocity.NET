@@ -7,7 +7,7 @@ namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
     public class ExecuteNonQueryTests
     {
         [Test]
-        public void Should_Return_The_Number_Of_Affected_Rows()
+        public async void Should_Return_The_Number_Of_Affected_Rows()
         {
             // Arrange
             const string sql = @"
@@ -23,16 +23,16 @@ VALUES ( 'Superman' );
 ";
 
             // Act
-            var rowsAffected = Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            var rowsAffected = await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( sql )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.That( rowsAffected == 1 );
         }
 
         [Test]
-        public void Should_Null_The_DbCommand_By_Default()
+        public async void Should_Null_The_DbCommand_By_Default()
         {
             // Arrange
             const string sql = @"
@@ -50,14 +50,14 @@ VALUES ( 'Superman' );
                 .SetCommandText( sql );
 
             // Act
-            databaseCommand.ExecuteNonQuery();
+            await databaseCommand.ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsNull( databaseCommand.DbCommand );
         }
 
         [Test]
-        public void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
+        public async void Should_Keep_The_Database_Connection_Open_If_keepConnectionOpen_Parameter_Was_True()
         {
             // Arrange
             const string sql = @"
@@ -75,7 +75,7 @@ VALUES ( 'Superman' );
                 .SetCommandText( sql );
 
             // Act
-            var rowsAffected = databaseCommand.ExecuteNonQuery( true );
+            var rowsAffected = await databaseCommand.ExecuteNonQueryAsync(true);
 
             // Assert
             Assert.That( databaseCommand.DbCommand.Connection.State == ConnectionState.Open );
@@ -85,7 +85,7 @@ VALUES ( 'Superman' );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPreExecuteEventHandler()
         {
             // Arrange
             bool wasPreExecuteEventHandlerCalled = false;
@@ -93,16 +93,16 @@ VALUES ( 'Superman' );
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPreExecuteEventHandlers.Add( command => wasPreExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsTrue( wasPreExecuteEventHandlerCalled );
         }
 
         [Test]
-        public void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
+        public async void Should_Call_The_DatabaseCommandPostExecuteEventHandler()
         {
             // Arrange
             bool wasPostExecuteEventHandlerCalled = false;
@@ -110,9 +110,9 @@ VALUES ( 'Superman' );
             Sqlocity.ConfigurationSettings.EventHandlers.DatabaseCommandPostExecuteEventHandlers.Add( command => wasPostExecuteEventHandlerCalled = true );
 
             // Act
-            Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "SELECT 1" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.IsTrue( wasPostExecuteEventHandlerCalled );
@@ -130,9 +130,9 @@ VALUES ( 'Superman' );
             } );
 
             // Act
-            TestDelegate action = () => Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
+            TestDelegate action = async () => await Sqlocity.GetDatabaseCommand( ConnectionStringsNames.SqlServerConnectionString )
                 .SetCommandText( "asdf;lkj" )
-                .ExecuteNonQuery();
+                .ExecuteNonQueryAsync();
 
             // Assert
             Assert.Throws<System.Data.SqlClient.SqlException>( action );
