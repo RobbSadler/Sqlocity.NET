@@ -1050,6 +1050,13 @@ namespace SqlocityNetCore
             return databaseCommand;
         }
 
+        public static DatabaseCommand GenerateUpdateForSqlServer( this DatabaseCommand dbCommand, object obj, List<string> keyNames, string tableName = null)
+        {
+            // Generate an UPDATE statement from the given object.
+            const string updateStatement = "UPDATE {0} SET {1} WHERE {2}";
+            return dbCommand.DbCommand.GenerateUpdateCommand( obj, keyNames, tableName, updateStatement ).ToDatabaseCommand();
+        }
+
         #region Execute Functions
 
         /// <summary>Executes a statement against the database asynchronously and returns the number of rows affected.</summary>
@@ -2667,6 +2674,67 @@ SELECT SCOPE_IDENTITY() AS [LastInsertedId];
 
             return dbCommand;
         }
+
+        public static DbCommand GenerateUpdateCommand(this DbCommand dbCommand, object obj, List<string> keys, string tableName = null, string updateStatement = null)
+        {
+            // Generate an UPDATE statement from the given object.
+            if (string.IsNullOrWhiteSpace(updateStatement))
+            {
+                updateStatement = "UPDATE {0} SET {1} WHERE {2}";
+            }
+
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+            if (updateStatement.Contains("{0}") == false || updateStatement.Contains("{1}") == false || updateStatement.Contains("{2}") == false)
+            {
+                throw new Exception("The 'sqlInsertStatementTemplate' parameter does not conform to the template requirements of containing three string.Format arguments. A valid example is: INSERT INTO {0} ({1}) VALUES({2});");
+            }
+
+            if (tableName == null && obj.IsAnonymousType())
+            {
+                throw new ArgumentNullException("tableName", "The 'tableName' parameter must be provided when the object supplied is an anonymous type.");
+            }
+
+            var type = obj.GetType();
+            var properties = type.GetProperties();
+
+            var tableNameToUse = tableName ?? type.Name;
+
+            var setStatements = new List<string>();
+            var whereStatements = new List<string>();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(obj, null);
+
+                if (value == null)
+                {
+                    continue;
+                }
+
+                if (keys.Contains(property.Name))
+                {
+                    whereStatements.Add(string.Format("{0} = @{0}", property.Name));
+                }
+                else
+                {
+                    setStatements.Add(string.Format("{0} = @{0}", property.Name));
+                }
+
+                dbCommand.AddParameter(property.Name, value);
+            }
+
+            var setStatement = string.Join(", ", setStatements);
+            var whereStatement = string.Join(" AND ", whereStatements);
+
+            dbCommand.CommandText = string.Format(updateStatement, tableNameToUse, setStatement, whereStatement);
+
+            return dbCommand;
+        }
+
 
         /// <summary>Gets a dictionary containing the objects property and field names and values.</summary>
         /// <param name="obj">Object to get names and values from.</param>

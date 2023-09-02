@@ -8,14 +8,18 @@
     <Company>none</Company>
     <Product>Sqlocity.NetCore</Product>
     <Copyright>Copyright © 2015 Ambit Energy. All rights reserved.</Copyright>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <VersionSuffix>1.0.0.$([System.DateTime]::UtcNow.ToString(mmff))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>	  
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>A port of Sequelocity to .Net core</Title>
     <PackageProjectUrl>https://github.com/RobbSadler/Sqlocity.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RobbSadler/Sqlocity.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<Deterministic>false</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DocumentationFile>bin\Debug\SequelocityDotNet.xml</DocumentationFile>
