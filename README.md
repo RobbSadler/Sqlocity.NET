@@ -6,7 +6,11 @@ Sequelocity.NET
 	<img src="https://ci.appveyor.com/api/projects/status/github/ambitenergylabs/sequelocity.net?svg=true" alt="AppVeyor Build Status" />
 </a>
 
-*Note that this project is a work in progress, with everything currently in flight.*
+*Note that this project (the .Net Core 6 port) is a work in progress, with everything currently in flight.*
+
+*My main motivation was to get the functionality of Sequelicity into a .Net Core 6 project, so I could use it in a project I'm working on.*
+
+*Original Sequelocity readme is below with a few additions.*
 
 ###What is it?###
 
@@ -27,6 +31,7 @@ Here is the super awesome list of reasons to use Sequelocity:
 - Automatically handles all database connection opening, closing, and disposing of unneeded resources
 - Can map results back to strongly typed objects, dynamic objects, DataSets or DataTables
 - Can generate SQL insert statements given a strongly typed object, anonymous object, or dynamic object
+- (in progress) Can generate SQL update statements given a strongly typed object, anonymous object, or dynamic object
 - Is backed by over 500 tests (still being worked out in ported version)
 
 ###Usage###
@@ -100,6 +105,8 @@ Sequelocity is backed by a large test suite comprising over 500 unit and integra
 - [SequelocityDotNet.Tests.SqlServer](https://github.com/RobbSadler/Sqlocity.NET/tree/master/src/SequelocityDotNet.Tests.SqlServer) - These are integration tests against a Sql Server database kindly provided by AppHarbor. *Note that we do not share the ConnectionString to our test Sql Server for obvious reasons so the tests won't be immediately runnable but you can simply replace the ConnectionString with your own and the tests should run just fine as all tests are self contained and will conveniently create any database objects that they need to satisfy the test.
 
 ###Database Support###
+
+The Sqlocity port has not been tested with anything other than Sql Server
 
 Sequelocity works with all ADO.NET providers including SQL Server, SQLite, SQL CE, Oracle, MySQL, PostgreSQL, Firebird, etc.
 
