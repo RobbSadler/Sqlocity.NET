@@ -19,7 +19,7 @@ namespace SqlocityNetCore.Tests.SqlServer.SequelocityTests
 
             // Assert
             Assert.NotNull( databaseCommand );
-            Assert.That( databaseCommand.DbCommand.Connection.ToString() == "System.Data.SqlClient.SqlConnection" );
+            Assert.That( databaseCommand.DbCommand.Connection.ToString() == "Microsoft.Data.SqlClient.SqlConnection");
 
             // Reset
             TestHelpers.ClearDefaultConfigurationSettings();

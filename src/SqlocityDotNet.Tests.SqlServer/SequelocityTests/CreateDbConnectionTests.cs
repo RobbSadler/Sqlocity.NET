@@ -28,7 +28,7 @@ namespace SqlocityNetCore.Tests.SqlServer.SequelocityTests
             // Arrange
             string connectionString = ConfigurationManager.ConnectionStrings[ ConnectionStringsNames.SqlServerConnectionString ].ConnectionString;
 
-            const string dbProviderFactoryInvariantName = "System.Data.SqlClient";
+            const string dbProviderFactoryInvariantName = "Microsoft.Data.SqlClient";
 
             // Act
             var dbConnection = Sqlocity.CreateDbConnection( connectionString, dbProviderFactoryInvariantName );
@@ -46,7 +46,7 @@ namespace SqlocityNetCore.Tests.SqlServer.SequelocityTests
             // Arrange
             const string connectionString = null;
 
-            const string dbProviderFactoryInvariantName = "System.Data.SqlClient";
+            const string dbProviderFactoryInvariantName = "Microsoft.Data.SqlClient";
 
             // Act
             TestDelegate action = () => Sqlocity.CreateDbConnection( connectionString, dbProviderFactoryInvariantName );

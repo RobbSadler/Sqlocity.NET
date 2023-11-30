@@ -29,6 +29,7 @@
     THE SOFTWARE.
 */
 
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -131,9 +132,9 @@ namespace SqlocityNetCore
         /// </exception>
         public static DatabaseCommand GetDatabaseCommandForSqlServer( string connectionStringOrName = null, string applicationName = null )
         {
-            var databaseCommand = GetDatabaseCommand( connectionStringOrName, "System.Data.SqlClient" );
+            var databaseCommand = GetDatabaseCommand( connectionStringOrName, "Microsoft.Data.SqlClient" );
 
-            var builder = new System.Data.SqlClient.SqlConnectionStringBuilder( databaseCommand.DbCommand.Connection.ConnectionString );
+            var builder = new SqlConnectionStringBuilder( databaseCommand.DbCommand.Connection.ConnectionString );
 
             if ( String.IsNullOrWhiteSpace( builder.ApplicationName ) )
             {
@@ -384,7 +385,7 @@ namespace SqlocityNetCore
             public static class Default
             {
                 /// <summary>Default DbProviderFactory invariant name.</summary>
-                public static string DbProviderFactoryInvariantName = "System.Data.SqlClient";
+                public static string DbProviderFactoryInvariantName = "Microsoft.Data.SqlClient";
 
                 /// <summary>Default connection string name.</summary>
                 public static string ConnectionStringName = null;
@@ -2700,7 +2701,6 @@ SELECT SCOPE_IDENTITY() AS [LastInsertedId];
 
             var type = obj.GetType();
             var properties = type.GetProperties();
-
             var tableNameToUse = tableName ?? type.Name;
 
             var setStatements = new List<string>();

@@ -6,6 +6,14 @@ Sequelocity.NET
 	<img src="https://ci.appveyor.com/api/projects/status/github/ambitenergylabs/sequelocity.net?svg=true" alt="AppVeyor Build Status" />
 </a>
 
+**Important:**
+You need to add this code to your project's `Startup.cs` file Sqlocity to function properly. This used to be part of .Net but now is required explicitly:
+
+NOTE: This should no longer be needed 
+```csharp
+DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
+```
+
 *Note that this project (the .Net Core 6 port) is a work in progress, with everything currently in flight.*
 
 *My main motivation was to get the functionality of Sequelicity into a .Net Core 6 project, so I could use it in a project I'm working on.*
@@ -65,7 +73,7 @@ Please see the [Examples](https://github.com/AmbitEnergyLabs/Sequelocity.NET/wik
 
 ###The DatabaseCommand###
 
-Sequelocity introduces the DatabaseCommand as a thin layer of abstraction upon the native Microsoft .NET Framework [System.Data.Common.DbCommand](http://msdn.microsoft.com/en-us/library/System.Data.Common.DbCommand(v=vs.110).aspx) in order to introduce several beneficial features such as automatic connection handling, event handlers, and extension points.
+Sequelocity introduces the DatabaseCommand as a thin layer of abstraction upon the native Microsoft .NET Framework [Microsoft.Data.Common.DbCommand](http://msdn.microsoft.com/en-us/library/System.Data.Common.DbCommand(v=vs.110).aspx) in order to introduce several beneficial features such as automatic connection handling, event handlers, and extension points.
 
 #####Automatic Connection Handling#####
 

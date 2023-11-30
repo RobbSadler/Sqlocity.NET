@@ -1,6 +1,7 @@
 using System.Data;
 using NUnit.Framework;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace SqlocityNetCore.Tests.SqlServer.DatabaseCommandExtensionsTests
 {
@@ -141,7 +142,7 @@ VALUES ( 'Superman' );
                 .ExecuteNonQueryAsync();
 
             // Assert
-            Assert.Throws<System.Data.SqlClient.SqlException>( action );
+            Assert.Throws<SqlException>( action );
             Assert.IsTrue( wasUnhandledExceptionEventHandlerCalled );
         }
     }

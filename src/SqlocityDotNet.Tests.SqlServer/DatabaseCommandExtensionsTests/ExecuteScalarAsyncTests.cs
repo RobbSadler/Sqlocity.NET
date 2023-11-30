@@ -180,7 +180,7 @@ FROM    #SuperHero;
                 .ExecuteScalarAsync();
 
             // Assert
-            Assert.Throws<System.Data.SqlClient.SqlException>( action );
+            Assert.Throws<Microsoft.Data.SqlClient.SqlException>( action );
             Assert.IsTrue( wasUnhandledExceptionEventHandlerCalled );
         }
     }

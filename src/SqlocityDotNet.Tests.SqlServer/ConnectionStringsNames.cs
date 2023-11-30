@@ -16,7 +16,7 @@ namespace SqlocityNetCore.Tests.SqlServer
 
         static ConnectionStringsNames()
         {
-            AddConnectionStringFromEnvironmentVariableAtRuntime( "Sequelocity_SqlServerConnectionString", SqlServerConnectionString, "System.Data.SqlClient" );
+            AddConnectionStringFromEnvironmentVariableAtRuntime( "Sequelocity_SqlServerConnectionString", SqlServerConnectionString, "Microsoft.Data.SqlClient");
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace SqlocityNetCore.Tests
         /// <returns><see cref="DbCommand"/> instance.</returns>
         public static DbCommand GetDbCommand()
         {
-            var dbProviderFactory = DbProviderFactories.GetFactory( "System.Data.SqlClient" );
+            var dbProviderFactory = DbProviderFactories.GetFactory("Microsoft.Data.SqlClient");
 
             var connection = dbProviderFactory.CreateConnection();
 

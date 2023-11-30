@@ -11,7 +11,7 @@ namespace SqlocityNetCore.Tests.DatabaseCommandExtensionsTests
         public void Should_Handle_Getting_A_DatabaseCommand()
         {
             // Arrange
-            var dbProviderFactory = DbProviderFactories.GetFactory( "System.Data.SqlClient" );
+            var dbProviderFactory = DbProviderFactories.GetFactory( "Microsoft.Data.SqlClient" );
 
             var connection = dbProviderFactory.CreateConnection();
 
