@@ -29,7 +29,6 @@
     THE SOFTWARE.
 */
 
-using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -132,9 +131,9 @@ namespace SqlocityNetCore
         /// </exception>
         public static DatabaseCommand GetDatabaseCommandForSqlServer( string connectionStringOrName = null, string applicationName = null )
         {
-            var databaseCommand = GetDatabaseCommand( connectionStringOrName, "Microsoft.Data.SqlClient" );
+            var databaseCommand = GetDatabaseCommand( connectionStringOrName, "System.Data.SqlClient" );
 
-            var builder = new SqlConnectionStringBuilder( databaseCommand.DbCommand.Connection.ConnectionString );
+            var builder = new System.Data.SqlClient.SqlConnectionStringBuilder( databaseCommand.DbCommand.Connection.ConnectionString );
 
             if ( String.IsNullOrWhiteSpace( builder.ApplicationName ) )
             {
@@ -385,7 +384,7 @@ namespace SqlocityNetCore
             public static class Default
             {
                 /// <summary>Default DbProviderFactory invariant name.</summary>
-                public static string DbProviderFactoryInvariantName = "Microsoft.Data.SqlClient";
+                public static string DbProviderFactoryInvariantName = "System.Data.SqlClient";
 
                 /// <summary>Default connection string name.</summary>
                 public static string ConnectionStringName = null;
@@ -1051,15 +1050,6 @@ namespace SqlocityNetCore
             return databaseCommand;
         }
 
-        /// <summary>Generates a SQL Server UPDATE statement from the given object and adds it to the command.</summary>
-        /// <param name="dbCommand"><see cref="DatabaseCommand" /> instance.</param>
-        /// <param name="obj">Object containing the values to update.</param>
-        /// <param name="keyNames">Property names to use in the WHERE clause.</param>
-        /// <param name="tableName">
-        /// Optional table name to update. If none is supplied, the object's type name is used. This parameter is required when
-        /// passing an anonymous object.
-        /// </param>
-        /// <returns>The given <see cref="DatabaseCommand" /> instance.</returns>
         public static DatabaseCommand GenerateUpdateForSqlServer( this DatabaseCommand dbCommand, object obj, List<string> keyNames, string tableName = null)
         {
             // Generate an UPDATE statement from the given object.
@@ -2685,23 +2675,6 @@ SELECT SCOPE_IDENTITY() AS [LastInsertedId];
             return dbCommand;
         }
 
-        /// <summary>Generates an UPDATE statement from the given object and assigns it to the command text.</summary>
-        /// <param name="dbCommand"><see cref="DbCommand" /> instance.</param>
-        /// <param name="obj">Object containing the values to update.</param>
-        /// <param name="keys">Property names to use in the WHERE clause.</param>
-        /// <param name="tableName">
-        /// Optional table name to update. If none is supplied, the object's type name is used. This parameter is required when
-        /// passing an anonymous object.
-        /// </param>
-        /// <param name="updateStatement">
-        /// Optional UPDATE statement template. It must contain three <see cref="string.Format(string,object,object,object)" />
-        /// placeholders for the table name, SET clause, and WHERE clause.
-        /// </param>
-        /// <returns>The given <see cref="DbCommand" /> instance.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// The value of <paramref name="tableName" /> cannot be null when the object passed is an anonymous type.
-        /// </exception>
-        /// <exception cref="Exception">The UPDATE statement template does not contain the required placeholders.</exception>
         public static DbCommand GenerateUpdateCommand(this DbCommand dbCommand, object obj, List<string> keys, string tableName = null, string updateStatement = null)
         {
             // Generate an UPDATE statement from the given object.
@@ -2727,6 +2700,7 @@ SELECT SCOPE_IDENTITY() AS [LastInsertedId];
 
             var type = obj.GetType();
             var properties = type.GetProperties();
+
             var tableNameToUse = tableName ?? type.Name;
 
             var setStatements = new List<string>();
