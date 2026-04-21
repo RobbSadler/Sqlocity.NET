@@ -31,7 +31,7 @@ CREATE TABLE #Customer
 ";
             string connectionString = ConfigurationManager.ConnectionStrings[ ConnectionStringsNames.SqlServerConnectionString ].ConnectionString;
 
-            var dbConnection = Sqlocity.CreateDbConnection( connectionString, "System.Data.SqlClient" );
+            var dbConnection = Sqlocity.CreateDbConnection( connectionString, "Microsoft.Data.SqlClient");
 
             await new DatabaseCommand( dbConnection )
                 .SetCommandText( sql )
@@ -69,7 +69,7 @@ CREATE TABLE #Customer
 ";
             string connectionString = ConfigurationManager.ConnectionStrings[ ConnectionStringsNames.SqlServerConnectionString ].ConnectionString;
 
-            var dbConnection = Sqlocity.CreateDbConnection( connectionString, "System.Data.SqlClient" );
+            var dbConnection = Sqlocity.CreateDbConnection( connectionString, "Microsoft.Data.SqlClient");
 
             await new DatabaseCommand( dbConnection )
                 .SetCommandText( sql )
